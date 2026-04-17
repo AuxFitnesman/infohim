@@ -1,0 +1,13 @@
+# Образ для обучения (GPU не обязателен; при необходимости замените базовый образ).
+FROM python:3.11-slim-bookworm
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1 PIP_NO_CACHE_DIR=1
+
+COPY requirements.txt .
+RUN pip install torch --index-url https://download.pytorch.org/whl/cpu && \
+    pip install -r requirements.txt
+
+COPY src/ ./src/
+COPY data/*.csv ./data/
+
+CMD ["python", "-m", "src.train", "--data-dir", "data", "--out-dir", "artifacts", "--epochs", "55", "--epochs-cv", "35", "--folds", "5", "--device", "cpu"]

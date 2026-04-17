@@ -1,0 +1,31 @@
+services:
+  train:
+    build:
+      context: .
+      dockerfile: Dockerfile.train
+    volumes:
+      - ./data:/app/data:ro
+      - ./artifacts:/app/artifacts
+
+  predict:
+    build: .
+    volumes:
+      - ./data:/app/data:ro
+      - ./artifacts:/app/artifacts
+      - .:/workspace
+    command: >
+      python -m src.predict
+      --data-dir /app/data
+      --artifacts-dir /app/artifacts
+      --output /workspace/predictions.csv
+
+  notebook:
+    build: .
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./data:/app/data:ro
+      - ./artifacts:/app/artifacts
+    command: >
+      jupyter notebook --ip=0.0.0.0 --no-browser --allow-root
+      --NotebookApp.token=''
